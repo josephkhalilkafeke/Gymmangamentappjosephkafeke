@@ -1,0 +1,70 @@
+﻿@page "/add-class"
+@using finalprojectjosephkafekecprg211.Data
+<EditForm Model="@classModel" OnValidSubmit="SubmitClass">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>Title:</label>
+        <InputText @bind-Value="classModel.Title" class="form-control" />
+        <ValidationMessage For="@(() => classModel.Title)" />
+    </div>
+    <div class="form-group">
+        <label>Schedule:</label>
+        <InputDate @bind-Value="classModel.Schedule" class="form-control" />
+        <ValidationMessage For="@(() => classModel.Schedule)" />
+    </div>
+    <div class="form-group">
+        <label>Trainer:</label>
+        <select @bind="classModel.TrainerID" class="form-control">
+            <option value="0">-- Select Trainer --</option>
+            @foreach (var trainer in trainers)
+            {
+                <option value="@trainer.StaffID">@trainer.Name</option>
+            }
+        </select>
+        <ValidationMessage For="@(() => classModel.TrainerID)" />
+    </div>
+    <button class="btn btn-primary">Add Class</button>
+</EditForm>
+<p style="color:green">@statusMessage</p>
+@code {
+    private WorkoutClassFormModel classModel = new();
+    private string statusMessage = string.Empty;
+    private List<finalprojectjosephkafekecprg211.Data.Staff> trainers = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var db = new Dbservi();
+        trainers = await db.GetStaffListAsync();
+    }
+    private async Task SubmitClass()
+    {
+        try
+        {
+            using var conn = new MySqlConnector.MySqlConnection("Server=localhost;Database=gymdb;User Id=root;Password=password;");
+            await conn.OpenAsync();
+            
+            var checkCmd = new MySqlConnector.MySqlCommand("SELECT COUNT(*) FROM WorkoutClasses WHERE Title = @title AND Schedule = @schedule", conn);
+            checkCmd.Parameters.AddWithValue("@title", classModel.Title);
+            checkCmd.Parameters.AddWithValue("@schedule", classModel.Schedule);
+            var count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+            if (count > 0)
+            {
+                throw new DuplicateClassException("A class with the same title and schedule already exists.");
+            }
+            var cmd = new MySqlConnector.MySqlCommand("INSERT INTO WorkoutClasses (Title, Schedule, TrainerID) VALUES (@title, @schedule, @trainerId)", conn);
+            cmd.Parameters.AddWithValue("@title", classModel.Title);
+            cmd.Parameters.AddWithValue("@schedule", classModel.Schedule);
+            cmd.Parameters.AddWithValue("@trainerId", classModel.TrainerID);
+            await cmd.ExecuteNonQueryAsync();
+            statusMessage = "Workout class added!";
+        }
+        catch (DuplicateClassException ex)
+        {
+            statusMessage = $"Custom Error: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+        }
+    }
+}

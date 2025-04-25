@@ -1,0 +1,39 @@
+﻿@page "/staff"
+@using finalprojectjosephkafekecprg211.Data
+<h2>Staff Members</h2>
+@if (staffList == null)
+{
+    <p>Loading staff...</p>
+}
+else if (staffList.Count == 0)
+{
+    <p>No staff found.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var staff in staffList)
+            {
+                <tr>
+                    <td>@staff.Name</td>
+                    <td>@staff.Role</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<finalprojectjosephkafekecprg211.Data.Staff> staffList;
+    protected override async Task OnInitializedAsync()
+    {
+        var db = new Dbservi();
+        staffList = await db.GetStaffListAsync();
+    }
+}

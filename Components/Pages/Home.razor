@@ -1,0 +1,45 @@
+﻿@page "/"
+@using finalprojectjosephkafekecprg211.Data
+<h2>Gym Members</h2>
+@if (members == null)
+{
+    <p>Loading members...</p>
+}
+else if (members.Count == 0)
+{
+    <p>No members found.</p>
+}
+else
+{   <p>
+<NavLink class="btn btn-primary" href="/add-member">
+       + Add New Member
+</NavLink>
+</p>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Join Date</th>
+                <th>Expires</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var member in members)
+            {
+                <tr>
+                    <td>@member.FullName</td>
+                    <td>@member.JoinDate.ToShortDateString()</td>
+                    <td>@member.MembershipExpires.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<Member> members;
+    protected override async Task OnInitializedAsync()
+    {
+        var db = new Dbservi(); 
+        members = await db.GetMembersListAsync();
+    }
+}

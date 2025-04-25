@@ -1,0 +1,14 @@
+﻿# Build output
+bin/
+obj/
+# User-specific files
+*.user
+*.suo
+*.log
+*.tmp
+*.db
+# IDE settings
+.vscode/
+.vs/
+# WebView2 generated files
+wwwroot/

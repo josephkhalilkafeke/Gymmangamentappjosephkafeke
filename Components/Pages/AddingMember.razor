@@ -1,0 +1,46 @@
+﻿@page "/add-member"
+@using finalprojectjosephkafekecprg211.Data
+@inject NavigationManager Nav
+<EditForm Model="@memberModel" OnValidSubmit="AddMember">
+<DataAnnotationsValidator />
+<ValidationSummary />
+<div class="form-group">
+<label>Name:</label>
+<InputText @bind-Value="memberModel.Name" class="form-control" />
+<ValidationMessage For="@(() => memberModel.Name)" />
+</div>
+<div class="form-group">
+<label>Join Date:</label>
+<InputDate @bind-Value="memberModel.JoinDate" class="form-control" />
+<ValidationMessage For="@(() => memberModel.JoinDate)" />
+</div>
+<div class="form-group">
+<label>Membership End:</label>
+<InputDate @bind-Value="memberModel.MembershipEnd" class="form-control" />
+<ValidationMessage For="@(() => memberModel.MembershipEnd)" />
+</div>
+<button class="btn btn-primary">Add Member</button>
+</EditForm>
+<p style="color:green">@statusMessage</p>
+@code {
+    private MemberFormModel memberModel = new();
+    private string statusMessage = string.Empty;
+    private async Task AddMember()
+    {
+        try
+        {
+            using var conn = new MySqlConnector.MySqlConnection("Server=localhost;Database=gymdb;User Id=root;Password=password;");
+            await conn.OpenAsync();
+            var cmd = new MySqlConnector.MySqlCommand("INSERT INTO Members (Name, JoinDate, MembershipEnd) VALUES (@name, @join, @end)", conn);
+            cmd.Parameters.AddWithValue("@name", memberModel.Name);
+            cmd.Parameters.AddWithValue("@join", memberModel.JoinDate);
+            cmd.Parameters.AddWithValue("@end", memberModel.MembershipEnd);
+            await cmd.ExecuteNonQueryAsync();
+            statusMessage = "Member added!";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+        }
+    }
+}

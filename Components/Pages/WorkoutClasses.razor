@@ -1,0 +1,41 @@
+﻿@page "/workout-classes"
+@using finalprojectjosephkafekecprg211.Data
+<h3>Workout Classes</h3>
+@if (classes == null)
+{
+    <p>Loading classes...</p>
+}
+else if (classes.Count == 0)
+{
+    <p>No classes scheduled.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Schedule</th>
+                <th>Trainer</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var wc in classes)
+            {
+                <tr>
+                    <td>@wc.Title</td>
+                    <td>@wc.Schedule.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@wc.TrainerName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+@code {
+    private List<WorkoutClass> classes = new();
+    protected override async Task OnInitializedAsync()
+    {
+        var db = new Dbservi();
+        classes = await db.GetWorkoutClassesAsync();
+    }
+}

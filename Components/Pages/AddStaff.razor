@@ -1,0 +1,34 @@
+﻿@page "/add-staff"
+<h3>Add New Staff</h3>
+<div class="form-group">
+    <label>Name:</label>
+    <InputText @bind-Value="staffName" class="form-control" />
+</div>
+<div class="form-group">
+    <label>Role:</label>
+    <InputText @bind-Value="staffRole" class="form-control" />
+</div>
+<button class="btn btn-primary" @onclick="SubmitStaff">Add Staff</button>
+<p style="color:green">@statusMessage</p>
+@code {
+    string staffName = string.Empty;
+    string staffRole = string.Empty;
+    string statusMessage = string.Empty;
+    private async Task SubmitStaff()
+    {
+        try
+        {
+            using var conn = new MySqlConnector.MySqlConnection("Server=localhost;Database=gymdb;User Id=root;Password=password;");
+            await conn.OpenAsync();
+            var cmd = new MySqlConnector.MySqlCommand("INSERT INTO Staff (Name, Role) VALUES (@name, @role)", conn);
+            cmd.Parameters.AddWithValue("@name", staffName);
+            cmd.Parameters.AddWithValue("@role", staffRole);
+            await cmd.ExecuteNonQueryAsync();
+            statusMessage = "Staff added!";
+        }
+        catch (Exception ex)
+        {
+            statusMessage = $"Error: {ex.Message}";
+        }
+    }
+}
